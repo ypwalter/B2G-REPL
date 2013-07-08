@@ -124,9 +124,21 @@ class ImportJSComponentCmd(object):
             # check the file exists, then import it
             else:
                 js = os.path.abspath(os.path.join(self.js_dir, self.file))
+                files = [ f for f in os.listdir(self.js_dir) if os.path.isfile(os.path.join(self.js_dir,f)) ]
+                indices = [ i for i, s in enumerate(files) if self.file in s ]
                 if os.path.exists(js) and os.path.isfile(js):
-                    print 'Imported:', js
                     self.m.import_script(js)
+                    print 'Imported:', js
+                elif indices.__len__() == 1:
+                    answer = raw_input("Do you mean %s? (y/n): " % files[indices[0]])
+                    if answer == 'y':
+                        file_location = os.path.abspath(os.path.join(self.js_dir, files[indices[0]]))
+                        self.m.import_script(file_location)
+                        print 'Imported:', file_location
+                elif indices.__len__() > 1:
+                    print 'More than one partial file names found:'
+                    for i in indices:
+                        print files[i]
                 else:
                     print 'No JS components "%s" under "%s" folder.' % (self.file, self.js_dir)
         else:
